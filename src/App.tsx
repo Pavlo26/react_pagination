@@ -1,12 +1,30 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './App.css';
 import { getNumbers } from './utils';
 import { Pagination } from './components/Pagination';
 
 export const App: React.FC = () => {
-  const [pegeAmount, setAmount] = useState(5);
-  const [currentPage, setCurrent] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // читаємо з URL
+  const pageFromUrl = Number(searchParams.get('page'));
+  const perPageFromUrl = Number(searchParams.get('perPage'));
+
+  const [pegeAmount, setAmount] = useState(
+    perPageFromUrl > 0 ? perPageFromUrl : 5,
+  );
+  const [currentPage, setCurrent] = useState(pageFromUrl > 0 ? pageFromUrl : 1);
+
+  //  синхронізуємо стан  URL
+  useEffect(() => {
+    setSearchParams({
+      page: String(currentPage),
+      perPage: String(pegeAmount),
+    });
+  }, [currentPage, pegeAmount, setSearchParams]);
+
   const total = 42;
   const pages = Math.ceil(total / pegeAmount);
   const end = currentPage !== pages ? pegeAmount * currentPage : total;
@@ -32,10 +50,10 @@ export const App: React.FC = () => {
               setCurrent(1);
             }}
           >
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
+            <option value={3}>3</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
           </select>
         </div>
 
